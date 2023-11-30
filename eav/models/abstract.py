@@ -37,17 +37,23 @@ class AttributesField(
         super().__init__(to=Attribute, through=through)
 
 
-class AbstractKlassAttributeAssignment(Model, Generic[KlassT]):
+class AbstractAttributeAssignment(Model):
+    attribute = ForeignKey(Attribute, on_delete=PROTECT)
+    attribute_id: int
+
+    class Meta:
+        abstract = True
+
+
+class AbstractKlassAttributeAssignment(AbstractAttributeAssignment, Generic[KlassT]):
     # TODO: runtime check for implementation
     klass: "ForeignKey[KlassT]"
-
-    attribute = ForeignKey(Attribute, on_delete=PROTECT)
 
     class Meta:
         abstract = True
         constraints = (
             UniqueConstraint(
-                fields=["entity", "attribute"],
+                fields=["klass", "attribute"],
                 name="unique_%(app_label)s_%(class)s_attribute",
             ),
         )
@@ -90,3 +96,26 @@ class AbstractKlass(Model, Generic[EntityT, AttributeAssignmentT]):
 
 class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
     attributes = AttributesField(through=KlassAttributeAssignment)
+
+
+class AbstractEntityAttributeAssignment(AbstractAttributeAssignment, Generic[EntityT]):
+    # TODO: runtime check for implementation
+    entity: "ForeignKey[EntityT]"
+    assignment: "ForeignKey[AbstractKlassAttributeAssignment[Any]]"
+
+    class Meta:
+        abstract = True
+        constraints = (
+            UniqueConstraint(
+                fields=["entity", "attribute"],
+                name="unique_%(app_label)s_%(class)s_attribute",
+            ),
+        )
+
+    @property
+    def attribute(self):
+        return self.assignment.attribute
+
+    @property
+    def attribute_pk(self):
+        return self.assignment.attribute_id
