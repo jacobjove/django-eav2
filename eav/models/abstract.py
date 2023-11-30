@@ -24,12 +24,12 @@ KlassT = TypeVar(  # noqa: PLC0105
 )
 KlassAttributeAssignmentT = TypeVar(  # noqa: PLC0105
     "KlassAttributeAssignmentT",
-    bound="Model",
+    bound="AbstractKlassAttributeAssignment[Any]",
     covariant=True,
 )
 EntityAttributeAssignmentT = TypeVar(  # noqa: PLC0105
     "EntityAttributeAssignmentT",
-    bound="Model",
+    bound="AbstractEntityAttributeAssignment[Any, Any]",
     covariant=True,
 )
 
@@ -113,10 +113,13 @@ class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
     attributes = AttributesField(through=KlassAttributeAssignment)
 
 
-class AbstractEntityAttributeAssignment(Model, Generic[EntityT, KlassT]):
+class AbstractEntityAttributeAssignment(
+    Model,
+    Generic[EntityT, KlassAttributeAssignmentT],
+):
     # TODO: runtime check for implementation
     entity: "ForeignKey[EntityT]"
-    assignment: "ForeignKey[AbstractKlassAttributeAssignment[KlassT]]"
+    assignment: "ForeignKey[KlassAttributeAssignmentT]"
 
     class Meta:
         abstract = True
