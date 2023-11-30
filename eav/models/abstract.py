@@ -45,10 +45,10 @@ class AttributesField(
     @override
     def __init__(
         self,
-        *,
         through: None | type[KlassAttributeAssignmentT] = None,
+        **kwargs,
     ) -> None:
-        super().__init__(to=Attribute, through=through)
+        super().__init__(Attribute, through=through, **kwargs)
 
 
 class AbstractAttributeAssignment(Model):
@@ -119,7 +119,11 @@ class AbstractEntityAttributeAssignment(
 ):
     # TODO: runtime check for implementation
     entity: "ForeignKey[EntityT]"
+    entity_id: int
+
+    # TODO: runtime check for implementation
     assignment: "ForeignKey[KlassAttributeAssignmentT]"
+    assignment_id: int
 
     class Meta:
         abstract = True
@@ -141,6 +145,8 @@ class AbstractEntityAttributeAssignment(
 
 class AbstractValueAssignment(Model, Generic[EntityAttributeAssignmentT]):
     value: "ForeignKey[Value]" = ForeignKey("eav.Value", on_delete=PROTECT)
+
+    # TODO: add runtime check for implementation
     assignment: "ForeignKey[EntityAttributeAssignmentT]"
 
     class Meta:
