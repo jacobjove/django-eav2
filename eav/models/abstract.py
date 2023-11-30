@@ -1,4 +1,4 @@
-from typing import Any, Generic, Self, TypeVar, override
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, override
 
 from django.db.models import (
     CASCADE,
@@ -10,6 +10,9 @@ from django.db.models import (
 )
 
 from .attribute import Attribute
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
 
 EntityT = TypeVar("EntityT", bound=Model)
 KlassT = TypeVar(  # noqa: PLC0105
@@ -89,6 +92,7 @@ class AbstractKlass(Model, Generic[EntityT, AttributeAssignmentT]):
             "AbstractKlass[EntityT, AttributeAssignmentT]",
         ]
     ]
+    attribute_assignments: "RelatedManager[AbstractKlassAttributeAssignment[AbstractKlass[EntityT, AttributeAssignmentT]]]"
 
     class Meta:
         abstract = True
