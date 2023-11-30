@@ -22,8 +22,13 @@ KlassT = TypeVar(  # noqa: PLC0105
     bound="AbstractKlass[Any, Any]",
     covariant=True,
 )
-AttributeAssignmentT = TypeVar(  # noqa: PLC0105
-    "AttributeAssignmentT",
+KlassAttributeAssignmentT = TypeVar(  # noqa: PLC0105
+    "KlassAttributeAssignmentT",
+    bound="Model",
+    covariant=True,
+)
+EntityAttributeAssignmentT = TypeVar(  # noqa: PLC0105
+    "EntityAttributeAssignmentT",
     bound="Model",
     covariant=True,
 )
@@ -31,14 +36,18 @@ AttributeAssignmentT = TypeVar(  # noqa: PLC0105
 
 class AttributesField(
     ManyToManyField,  # pyright: ignore[reportMissingTypeArgument]
-    Generic[AttributeAssignmentT],
+    Generic[KlassAttributeAssignmentT],
 ):
     @override
     def __new__(cls, **kwargs) -> "Self":
         return super().__new__(cls)  # type: ignore
 
     @override
-    def __init__(self, *, through: None | type[AttributeAssignmentT] = None) -> None:
+    def __init__(
+        self,
+        *,
+        through: None | type[KlassAttributeAssignmentT] = None,
+    ) -> None:
         super().__init__(to=Attribute, through=through)
 
 
@@ -68,7 +77,7 @@ class KlassAttributeAssignment(AbstractKlassAttributeAssignment["Klass"]):
     klass: "ForeignKey[Klass]" = ForeignKey("eav.Klass", on_delete=CASCADE)
 
 
-class AbstractKlass(Model, Generic[EntityT, AttributeAssignmentT]):
+class AbstractKlass(Model, Generic[EntityT, KlassAttributeAssignmentT]):
     """
     Abstract model defining a relationship with a set of attributes.
 
@@ -91,10 +100,10 @@ class AbstractKlass(Model, Generic[EntityT, AttributeAssignmentT]):
     # TODO: runtime check for implementation
     attributes: AttributesField[
         AbstractKlassAttributeAssignment[
-            "AbstractKlass[EntityT, AttributeAssignmentT]",
+            "AbstractKlass[EntityT, KlassAttributeAssignmentT]",
         ]
     ]
-    attribute_assignments: "RelatedManager[AbstractKlassAttributeAssignment[AbstractKlass[EntityT, AttributeAssignmentT]]]"
+    attribute_assignments: "RelatedManager[AbstractKlassAttributeAssignment[AbstractKlass[EntityT, KlassAttributeAssignmentT]]]"
 
     class Meta:
         abstract = True
@@ -104,10 +113,10 @@ class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
     attributes = AttributesField(through=KlassAttributeAssignment)
 
 
-class AbstractEntityAttributeAssignment(Model, Generic[EntityT]):
+class AbstractEntityAttributeAssignment(Model, Generic[EntityT, KlassT]):
     # TODO: runtime check for implementation
     entity: "ForeignKey[EntityT]"
-    assignment: "ForeignKey[AbstractKlassAttributeAssignment[Any]]"
+    assignment: "ForeignKey[AbstractKlassAttributeAssignment[KlassT]]"
 
     class Meta:
         abstract = True
@@ -127,9 +136,9 @@ class AbstractEntityAttributeAssignment(Model, Generic[EntityT]):
         return self.assignment.attribute_id
 
 
-class AbstractValueAssignment(Model):
+class AbstractValueAssignment(Model, Generic[EntityAttributeAssignmentT]):
     value: "ForeignKey[Value]" = ForeignKey("eav.Value", on_delete=PROTECT)
-    assignment: "ForeignKey[AbstractEntityAttributeAssignment[Any]]"
+    assignment: "ForeignKey[EntityAttributeAssignmentT]"
 
     class Meta:
         abstract = True
