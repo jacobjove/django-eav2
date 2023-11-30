@@ -49,7 +49,7 @@ class AbstractKlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
         constraints = (
             UniqueConstraint(
                 fields=["entity", "attribute"],
-                name="unique_%(app_name)s_%(class)s_attribute",
+                name="unique_%(app_label)s_%(class)s_attribute",
             ),
         )
 
