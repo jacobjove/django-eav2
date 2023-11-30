@@ -14,6 +14,8 @@ from .attribute import Attribute
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
+    from .value import Value
+
 EntityT = TypeVar("EntityT", bound=Model)
 KlassT = TypeVar(  # noqa: PLC0105
     "KlassT",
@@ -102,7 +104,7 @@ class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
     attributes = AttributesField(through=KlassAttributeAssignment)
 
 
-class AbstractEntityAttributeAssignment(AbstractAttributeAssignment, Generic[EntityT]):
+class AbstractEntityAttributeAssignment(Model, Generic[EntityT]):
     # TODO: runtime check for implementation
     entity: "ForeignKey[EntityT]"
     assignment: "ForeignKey[AbstractKlassAttributeAssignment[Any]]"
@@ -117,9 +119,23 @@ class AbstractEntityAttributeAssignment(AbstractAttributeAssignment, Generic[Ent
         )
 
     @property
-    def attribute(self):
+    def attribute(self) -> "Attribute":
         return self.assignment.attribute
 
     @property
-    def attribute_pk(self):
+    def attribute_pk(self) -> int | str:
         return self.assignment.attribute_id
+
+
+class AbstractValueAssignment(Model):
+    value: "ForeignKey[Value]" = ForeignKey("eav.Value", on_delete=PROTECT)
+    assignment: "ForeignKey[AbstractEntityAttributeAssignment[Any]]"
+
+    class Meta:
+        abstract = True
+        constraints = (
+            UniqueConstraint(
+                fields=["value", "assignment"],
+                name="unique_%(app_label)s_%(class)s_value_assignment",
+            ),
+        )
