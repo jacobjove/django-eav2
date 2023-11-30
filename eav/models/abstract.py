@@ -29,12 +29,12 @@ AttributeAssignmentT = TypeVar("AttributeAssignmentT", bound="Model")
 
 
 class AttributesField(
-    ManyToManyField[Attribute, AttributeAssignmentT],
+    ManyToManyField,  # pyright: ignore[reportMissingTypeArgument]
     Generic[AttributeAssignmentT],
 ):
     @override
-    def __new__(cls, **kwargs) -> Any:  # TODO
-        super().__new__(cls)  # type: ignore
+    def __new__(cls, **kwargs) -> "ManyToManyField[Attribute, AttributeAssignmentT]":
+        return super().__new__(cls)  # type: ignore
 
     @override
     def __init__(self, *, through: None | AttributeAssignmentT = None) -> None:
