@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, override
 
 from django.db.models import (
-    CASCADE,
     PROTECT,
     ForeignKey,
     ManyToManyField,
@@ -74,10 +73,6 @@ class AbstractKlassAttributeAssignment(AbstractAttributeAssignment, Generic[Klas
         )
 
 
-class KlassAttributeAssignment(AbstractKlassAttributeAssignment["Klass"]):
-    klass: "ForeignKey[Klass]" = ForeignKey("eav.Klass", on_delete=CASCADE)
-
-
 class AbstractKlass(Model, Generic[EntityT, KlassAttributeAssignmentT]):
     """
     Abstract model defining a relationship with a set of attributes.
@@ -108,10 +103,6 @@ class AbstractKlass(Model, Generic[EntityT, KlassAttributeAssignmentT]):
 
     class Meta:
         abstract = True
-
-
-class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
-    attributes = AttributesField(through=KlassAttributeAssignment)
 
 
 class AbstractEntityAttributeAssignment(
