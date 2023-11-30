@@ -46,9 +46,11 @@ class AbstractKlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
 
     class Meta:
         abstract = True
-        constraints = UniqueConstraint(
-            fields=["entity", "attribute"],
-            name="unique_%(app_name)s_%(class)s_attribute",
+        constraints = (
+            UniqueConstraint(
+                fields=["entity", "attribute"],
+                name="unique_%(app_name)s_%(class)s_attribute",
+            ),
         )
 
     @property
