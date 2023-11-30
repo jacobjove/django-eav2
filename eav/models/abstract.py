@@ -48,7 +48,8 @@ class AttributesField(
         through: None | type[KlassAttributeAssignmentT] = None,
         **kwargs,
     ) -> None:
-        super().__init__(Attribute, through=through, **kwargs)
+        to = kwargs.pop("to", Attribute)
+        super().__init__(to, through=through, **kwargs)
 
 
 class AbstractAttributeAssignment(Model):
