@@ -13,6 +13,7 @@ from .abstract import (
     AbstractEntityAttributeAssignment,
     AbstractKlass,
     AbstractKlassAttributeAssignment,
+    AbstractValueAssignment,
 )
 from .attribute import Attribute
 from .entity import EAVModelMeta, Entity
@@ -30,4 +31,5 @@ __all__ = [
     "AbstractKlass",
     "AbstractKlassAttributeAssignment",
     "AbstractEntityAttributeAssignment",
+    "AbstractValueAssignment",
 ]
