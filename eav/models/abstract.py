@@ -130,8 +130,8 @@ class AbstractEntityAttributeAssignment(
         abstract = True
         constraints = (
             UniqueConstraint(
-                fields=["entity", "attribute"],
-                name="unique_%(app_label)s_%(class)s_attribute",
+                fields=["entity", "assignment"],
+                name="unique_%(app_label)s_%(class)s_assignment",
             ),
         )
 
