@@ -3,6 +3,7 @@ from typing import Any, Generic, Self, TypeVar, override
 from abc import ABCMeta, abstractmethod
 
 from django.db.models import (
+    CASCADE,
     PROTECT,
     ForeignKey,
     ManyToManyField,
@@ -23,7 +24,7 @@ class AbstractBaseModel(Model, metaclass=AbstractModelMeta):
 
 
 EntityT = TypeVar("EntityT", bound=Model)
-KlassT = TypeVar("KlassT", bound="Klass[Any]")
+KlassT = TypeVar("KlassT", bound="AbstractKlass[Any]")
 AttributeAssignmentT = TypeVar("AttributeAssignmentT", bound="Model")
 
 
@@ -32,11 +33,15 @@ class AttributesField(
     Generic[AttributeAssignmentT],
 ):
     @override
-    def __init__(self, through: AttributeAssignmentT, **kwargs) -> None:
-        super().__init__(through=through, **kwargs)
+    def __new__(cls, **kwargs) -> Any:  # TODO
+        super().__new__(cls)  # type: ignore
+
+    @override
+    def __init__(self, *, through: None | AttributeAssignmentT = None) -> None:
+        super().__init__(to=Attribute, through=through)
 
 
-class KlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
+class AbstractKlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
     attribute = ForeignKey(Attribute, on_delete=PROTECT)
 
     class Meta:
@@ -48,13 +53,17 @@ class KlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
 
     @property
     @abstractmethod
-    def klass(
-        self,
-    ) -> "ForeignKey[KlassT]":
+    def klass(self) -> "ForeignKey[KlassT]":  # type: ignore
         """Must be defined by Klass models."""
 
+    klass: KlassT
 
-class Klass(AbstractBaseModel, Generic[EntityT]):
+
+class KlassAttributeAssignment(AbstractKlassAttributeAssignment["Klass", Any]):
+    klass: "ForeignKey[Klass]" = ForeignKey("eav.Klass", on_delete=CASCADE)
+
+
+class AbstractKlass(AbstractBaseModel, Generic[EntityT]):
     """
     Abstract model defining a relationship with a set of attributes.
 
@@ -79,7 +88,13 @@ class Klass(AbstractBaseModel, Generic[EntityT]):
 
     @property
     @abstractmethod
-    def attributes(
+    def attributes(  # type: ignore
         self,
-    ) -> AttributesField[KlassAttributeAssignment[type[Self], EntityT]]:
+    ) -> AttributesField[AbstractKlassAttributeAssignment[type[Self], EntityT]]:
         """Must be defined by Klass models."""
+
+    attributes: Any
+
+
+class Klass(AbstractKlass[Any]):
+    attributes = AttributesField(through=KlassAttributeAssignment)
