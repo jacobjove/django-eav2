@@ -1,7 +1,5 @@
 from typing import Any, Generic, Self, TypeVar, override
 
-from abc import ABCMeta, abstractmethod
-
 from django.db.models import (
     CASCADE,
     PROTECT,
@@ -13,19 +11,17 @@ from django.db.models import (
 
 from .attribute import Attribute
 
-
-class AbstractModelMeta(ABCMeta, type(Model)):
-    pass
-
-
-class AbstractBaseModel(Model, metaclass=AbstractModelMeta):
-    class Meta:
-        abstract = True
-
-
 EntityT = TypeVar("EntityT", bound=Model)
-KlassT = TypeVar("KlassT", bound="AbstractKlass[Any]")
-AttributeAssignmentT = TypeVar("AttributeAssignmentT", bound="Model")
+KlassT = TypeVar(  # noqa: PLC0105
+    "KlassT",
+    bound="AbstractKlass[Any, Any]",
+    covariant=True,
+)
+AttributeAssignmentT = TypeVar(  # noqa: PLC0105
+    "AttributeAssignmentT",
+    bound="Model",
+    covariant=True,
+)
 
 
 class AttributesField(
@@ -33,15 +29,18 @@ class AttributesField(
     Generic[AttributeAssignmentT],
 ):
     @override
-    def __new__(cls, **kwargs) -> "ManyToManyField[Attribute, AttributeAssignmentT]":
+    def __new__(cls, **kwargs) -> "Self":
         return super().__new__(cls)  # type: ignore
 
     @override
-    def __init__(self, *, through: None | AttributeAssignmentT = None) -> None:
+    def __init__(self, *, through: None | type[AttributeAssignmentT] = None) -> None:
         super().__init__(to=Attribute, through=through)
 
 
-class AbstractKlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
+class AbstractKlassAttributeAssignment(Model, Generic[KlassT]):
+    # TODO: runtime check for implementation
+    klass: "ForeignKey[KlassT]"
+
     attribute = ForeignKey(Attribute, on_delete=PROTECT)
 
     class Meta:
@@ -53,19 +52,12 @@ class AbstractKlassAttributeAssignment(Model, Generic[KlassT, EntityT]):
             ),
         )
 
-    @property
-    @abstractmethod
-    def klass(self) -> "ForeignKey[KlassT]":  # type: ignore
-        """Must be defined by Klass models."""
 
-    klass: KlassT
-
-
-class KlassAttributeAssignment(AbstractKlassAttributeAssignment["Klass", Any]):
+class KlassAttributeAssignment(AbstractKlassAttributeAssignment["Klass"]):
     klass: "ForeignKey[Klass]" = ForeignKey("eav.Klass", on_delete=CASCADE)
 
 
-class AbstractKlass(AbstractBaseModel, Generic[EntityT]):
+class AbstractKlass(Model, Generic[EntityT, AttributeAssignmentT]):
     """
     Abstract model defining a relationship with a set of attributes.
 
@@ -85,18 +77,16 @@ class AbstractKlass(AbstractBaseModel, Generic[EntityT]):
     ```
     """
 
+    # TODO: runtime check for implementation
+    attributes: AttributesField[
+        AbstractKlassAttributeAssignment[
+            "AbstractKlass[EntityT, AttributeAssignmentT]",
+        ]
+    ]
+
     class Meta:
         abstract = True
 
-    @property
-    @abstractmethod
-    def attributes(  # type: ignore
-        self,
-    ) -> AttributesField[AbstractKlassAttributeAssignment[type[Self], EntityT]]:
-        """Must be defined by Klass models."""
 
-    attributes: Any
-
-
-class Klass(AbstractKlass[Any]):
+class Klass(AbstractKlass[Any, KlassAttributeAssignment]):
     attributes = AttributesField(through=KlassAttributeAssignment)
