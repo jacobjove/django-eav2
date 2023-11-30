@@ -10,10 +10,9 @@ optional metaclass for each eav model class.
 """
 
 from .abstract import (
+    AbstractEntityAttributeAssignment,
     AbstractKlass,
     AbstractKlassAttributeAssignment,
-    Klass,
-    KlassAttributeAssignment,
 )
 from .attribute import Attribute
 from .entity import EAVModelMeta, Entity
@@ -29,7 +28,6 @@ __all__ = [
     "Entity",
     "EAVModelMeta",
     "AbstractKlass",
-    "Klass",
     "AbstractKlassAttributeAssignment",
-    "KlassAttributeAssignment",
+    "AbstractEntityAttributeAssignment",
 ]
