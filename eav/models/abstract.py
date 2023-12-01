@@ -114,15 +114,15 @@ class AbstractEntityAttributeAssignment(
     entity_id: int
 
     # TODO: runtime check for implementation
-    klass_assignment: "ForeignKey[KlassAttributeAssignmentT]"
-    klass_assignment_id: int
+    klass_attribute_assignment: "ForeignKey[KlassAttributeAssignmentT]"
+    klass_attribute_assignment_id: int
 
     class Meta:
         abstract = True
         constraints = (
             UniqueConstraint(
-                fields=["entity", "klass_assignment"],
-                name="unique_%(app_label)s_%(class)s_klass_assignment",
+                fields=["entity", "klass_attribute_assignment"],
+                name="unique_%(app_label)s_%(class)s_klass_attribute_assignment",
             ),
         )
 
