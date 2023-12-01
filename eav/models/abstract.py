@@ -128,11 +128,11 @@ class AbstractEntityAttributeAssignment(
 
     @property
     def attribute(self) -> "Attribute":
-        return self.assignment.attribute
+        return self.klass_attribute_assignment.attribute
 
     @property
     def attribute_pk(self) -> int | str:
-        return self.assignment.attribute_id
+        return self.klass_attribute_assignment.attribute_id
 
 
 class AbstractValueAssignment(Model, Generic[EntityAttributeAssignmentT]):
