@@ -24,6 +24,7 @@ class EnumGroup(models.Model):
     objects = EnumGroupManager()
 
     class Meta:
+        app_label = 'eav'
         verbose_name = _('EnumGroup')
         verbose_name_plural = _('EnumGroups')
 

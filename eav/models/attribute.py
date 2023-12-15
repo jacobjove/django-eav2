@@ -89,6 +89,7 @@ class Attribute(models.Model):
     objects = AttributeManager()
 
     class Meta:
+        app_label = 'eav'
         ordering = ['name']
         verbose_name = _('Attribute')
         verbose_name_plural = _('Attributes')

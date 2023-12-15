@@ -46,6 +46,7 @@ class Value(models.Model):
     objects = ValueManager()
 
     class Meta:
+        app_label = 'eav'
         verbose_name = _('Value')
         verbose_name_plural = _('Values')
 

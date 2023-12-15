@@ -36,6 +36,7 @@ class EnumValue(models.Model):
     objects = EnumValueManager()
 
     class Meta:
+        app_label = 'eav'
         verbose_name = _('EnumValue')
         verbose_name_plural = _('EnumValues')
 
