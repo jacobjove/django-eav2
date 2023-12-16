@@ -70,7 +70,7 @@ build_command = "pip install poetry && poetry build"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-django = ">=3.2,<4.3"
+django = ">=3.2,<5.1"
 
 [tool.poetry.group.test.dependencies]
 mypy = "^1.6"
