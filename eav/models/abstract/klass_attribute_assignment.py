@@ -3,17 +3,19 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, override
 from django.db.models import (
     PROTECT,
     ForeignKey,
-    ManyToManyField,
     Model,
     UniqueConstraint,
 )
 
-from .attribute import Attribute
+from .attributes_field import AttributesField
+from ..attribute import Attribute
+from .attribute_assignment import AbstractAttributeAssignment
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
-    from .value import Value
+    from ..value import Value
+
 
 EntityT = TypeVar("EntityT", bound=Model)
 KlassT = TypeVar(  # noqa: PLC0105
@@ -32,31 +34,6 @@ EntityAttributeAssignmentT = TypeVar(  # noqa: PLC0105
     covariant=True,
 )
 
-
-class AttributesField(
-    ManyToManyField,  # pyright: ignore[reportMissingTypeArgument]
-    Generic[KlassAttributeAssignmentT],
-):
-    @override
-    def __new__(cls, **kwargs) -> "Self":
-        return super().__new__(cls)  # type: ignore
-
-    @override
-    def __init__(
-        self,
-        through: None | type[KlassAttributeAssignmentT] = None,
-        **kwargs,
-    ) -> None:
-        to = kwargs.pop("to", Attribute)
-        super().__init__(to, through=through, **kwargs)
-
-
-class AbstractAttributeAssignment(Model):
-    attribute = ForeignKey(Attribute, on_delete=PROTECT)
-    attribute_id: int
-
-    class Meta:
-        abstract = True
 
 
 class AbstractKlassAttributeAssignment(AbstractAttributeAssignment, Generic[KlassT]):

@@ -9,12 +9,6 @@ Along with the :class:`Entity` helper class and :class:`EAVModelMeta`
 optional metaclass for each eav model class.
 """
 
-from .abstract import (
-    AbstractEntityAttributeAssignment,
-    AbstractKlass,
-    AbstractKlassAttributeAssignment,
-    AbstractValueAssignment,
-)
 from .attribute import Attribute
 from .entity import EAVModelMeta, Entity
 from .enum_group import EnumGroup
@@ -28,8 +22,4 @@ __all__ = [
     "Value",
     "Entity",
     "EAVModelMeta",
-    "AbstractKlass",
-    "AbstractKlassAttributeAssignment",
-    "AbstractEntityAttributeAssignment",
-    "AbstractValueAssignment",
 ]
